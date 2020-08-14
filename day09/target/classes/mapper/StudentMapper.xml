@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaoshu.dao.StudentMapper">
+  <resultMap id="BaseResultMap" type="com.xiaoshu.entity.Student">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="sdid" jdbcType="INTEGER" property="sdid" />
+    <result column="sdname" jdbcType="VARCHAR" property="sdname" />
+    <result column="sdsex" jdbcType="VARCHAR" property="sdsex" />
+    <result column="sdhobby" jdbcType="VARCHAR" property="sdhobby" />
+    <result column="sdbirth" jdbcType="DATE" property="sdbirth" />
+    <result column="mid" jdbcType="INTEGER" property="mid" />
+  </resultMap>
+  
+  
+  
+  <resultMap id="findAllMap" type="com.xiaoshu.entity.StudentVo">
+  
+    <id column="sdid" jdbcType="INTEGER" property="sdid" />
+    <result column="sdname" jdbcType="VARCHAR" property="sdname" />
+    <result column="sdsex" jdbcType="VARCHAR" property="sdsex" />
+    <result column="sdhobby" jdbcType="VARCHAR" property="sdhobby" />
+    <result column="sdbirth" jdbcType="DATE" property="sdbirth" />
+    <result column="mid" jdbcType="INTEGER" property="mid" />
+    <result column="pic" jdbcType="VARCHAR" property="pic" />
+    <result column="pid" jdbcType="INTEGER" property="pid" />
+    <result column="cid" jdbcType="INTEGER" property="cid" />
+    <result column="aid" jdbcType="INTEGER" property="aid" />
+    <result column="addr" jdbcType="VARCHAR" property="addr" />
+    <result column="pname" jdbcType="VARCHAR" property="pname" />
+    <result column="cname" jdbcType="VARCHAR" property="cname" />
+    <result column="aname" jdbcType="VARCHAR" property="aname" />
+    <association property="major" javaType="Major">
+    	<id column="mdid" jdbcType="INTEGER" property="mdid" />
+    	<result column="mdname" jdbcType="VARCHAR" property="mdname" />
+    </association>
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    sdid, sdname, sdsex, sdhobby, sdbirth, mid
+  </sql>
+ <select id="findAll" parameterType="Student" resultMap="findAllMap">
+ 	<!-- SELECT *  FROM `tb_stu_day` a , `tb_major_day` b WHERE a.`mid` = b.`mdid` -->
+ 	SELECT  a.*,b.*,c1.name pname,c2.name cname, c3.name aname  
+	FROM `tb_stu_day` a ,`tb_major_day` b ,`address` c1,`address` c2,`address` c3
+	WHERE a.`mid` = b.`mdid`
+	AND a.`pid`=c1.`id`
+	AND a.`cid` = c2.`id`
+	AND a.`aid` = c3.`id`
+ 	<if test="sdname != null  and sdname != ''">
+ 		and sdname like "%${sdname}%"
+ 	</if>
+ 	<if test="mid != null and mid != 0">
+ 		and mid = #{mid}
+ 	</if>
+ 	<if test="start != null and start != ''">
+ 		and sdbirth &gt; #{start}
+ 	</if>
+ 	<if test="end != null and end != ''">
+ 		and sdbirth &lt; #{end}
+ 	</if>
+ </select>
+ 
+ <select id="findByName" resultType="Student">
+ 	select  *  from  tb_stu_day where  sdname = #{sdName}
+ </select>
+ 
+ <select id="countStu" resultType="CountVo">
+ 
+	SELECT  b.`mdname`,COUNT(a.`sdid`) num 
+	FROM `tb_stu_day` a , `tb_major_day` b 
+	WHERE a.`mid` = b.`mdid` GROUP BY b.`mdname`
+ </select>
+ 
+ 
+ <insert id="addStu" parameterType="Student">
+ 	insert into tb_stu_day value (null,#{sdname},#{sdsex},#{sdhobby},#{sdbirth},#{mid},#{pic},#{pid},#{cid},#{aid},#{addr})
+ </insert>
+ 
+ <update id="updateStu" parameterType="Student">
+ 	update tb_stu_day set sdname=#{sdname}, sdsex=#{sdsex}, sdhobby=#{sdhobby}, sdbirth =#{sdbirth}, 
+ 	mid =#{mid},pid = #{pid},cid = #{cid},aid = #{aid},addr =#{addr} where sdid = #{sdid}
+ </update>
+</mapper>
